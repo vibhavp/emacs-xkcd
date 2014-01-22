@@ -9,6 +9,8 @@ Enable it by adding
 (require 'emacs-xkcd)
 ```
 to your .emacs file.
+#sScreenshot:
+[screen]: http://i.imgur.com/q9vzjvr.png "Screenshot of emacs-xkcd"
 #Loading up comics:
 `xkcd-get` loads up a user-specified comic.
 
