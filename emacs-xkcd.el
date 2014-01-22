@@ -43,14 +43,12 @@
 	    (define-key map (kbd "C-c t") 'xkcd-alt-text)
 	    map))
 
-;;taken from http://frozenlock.org/2012/07/07/url-retrieve-and-json-api/
-(defun get-json (url)
+(defun xkcd-get-json (url)
   (let ((buffer (url-retrieve-synchronously url))
         (json nil))
     (with-current-buffer buffer
-      (goto-char (point-min))
-      (re-search-forward "^$" nil 'move)
-      (setq json (buffer-substring-no-properties (point) (point-max)))
+      (re-search-backward "^$")
+      (setq json (buffer-substring-no-properties (+ (point) 1) (point-max)))
       (kill-buffer (current-buffer)))
     json))
 
@@ -109,7 +107,7 @@
   (xkcd-get (random (cdr (assoc 'num (json-read-from-string
 				      (get-json "http://xkcd.com/info.0.json")))))))
   
-(defun get-lastest-xkcd ()
+(defun xkcd-get-latest ()
   "Get the latest xkcd"
   (interactive)
   (if (and (boundp 'xkcd-mode) (not xkcd-mode))
