@@ -5,7 +5,7 @@ A hackish implementation of an xkcd (http://xkcd.com/) reader for Emacs.
 
 Enable it by adding
 ```lisp
-(add-to-list 'load-path (expand-file-name "/home/vibhavp/.emacs.d/elisp/emacs-xkcd"))
+(add-to-list 'load-path (expand-file-name "/path/to/emacs-xkcd.el"))
 (require 'emacs-xkcd)
 ```
 to your .emacs file.
