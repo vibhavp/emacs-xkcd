@@ -9,7 +9,9 @@ Enable it by adding
 (require 'emacs-xkcd)
 ```
 to your .emacs file.
-
+#Loading up comics:
+`xkcd-get` loads up a user-specified comic.
+`xkcd-get-latest` loads up the latest xkcd.
 # Current keybindings:
 | Keybinding | Use                            |  Function      |
 |:----------:|:------------------------------:|:--------------:|
