@@ -47,10 +47,18 @@
   (let ((buffer (url-retrieve-synchronously url))
         (json nil))
     (with-current-buffer buffer
+      (goto-char (point-min))
       (re-search-forward "^$")
       (setq json (buffer-substring-no-properties (+ (point) 1) (point-max)))
       (kill-buffer (current-buffer)))
     json))
+
+(defun xkcd-download (url num)
+  "Download the image linked by URL. If the file arleady exists, do nothing"
+  (let ((name (concat xkcd-cache (number-to-string num) ".png")))
+    (if (file-exists-p name)
+	nil
+      (url-copy-file url name))))
 
 (defun xkcd-get (num)
   "Get the xkcd number NUM"
@@ -66,17 +74,16 @@
   (let ((out (if (eq num nil)
 		 (xkcd-get-json "http://xkcd.com/info.0.json")
 	       (xkcd-get-json (concat "http://xkcd.com/" (number-to-string num)
-				 "/info.0.json"))))
+				      "/info.0.json"))))
 	(img nil)
 	(num nil)
 	(title nil))
-    (setq num (number-to-string (cdr (assoc 'num (json-read-from-string out)))))
+    (setq num (cdr (assoc 'num (json-read-from-string out))))
     (setq img (cdr (assoc 'img (json-read-from-string out))))
     
     ;; FIXME: This looks pretty ugly.
     (message "Downloading comic...")
-    (with-temp-buffer (shell-command
-		       (concat "wget " "-O " xkcd-cache num  ".png " "'" img "'") t))
+    (xkcd-download img num)
     (setq title (format "%d: %s" (cdr (assoc 'num (json-read-from-string out)))
 			(cdr (assoc 'safe_title (json-read-from-string out)))))
     (insert (concat title "\n"))
