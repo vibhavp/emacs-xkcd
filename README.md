@@ -15,6 +15,8 @@ to your .emacs file.
 #Loading up comics:
 `xkcd-get` loads up a user-specified comic.
 
+Files are cached by default to ~/.emacs.d/xkcd/. This can be changed by changing `xkcd-cache-dir` in the group "xkcd". (customize-group xkcd)
+
 `xkcd-get-latest` loads up the latest xkcd.
 # Current keybindings:
 | Keybinding | Use                            |  Function      |
@@ -25,7 +27,7 @@ to your .emacs file.
 | `<left>`   | Load previous xkcd             | (xkcd-prev)    |
 
 #Bugs
-Some comics using a different image extensions do not seem to load.
+Some comics using a different image extension do not to load.
 
 #TODO
 Add support for custom faces.
