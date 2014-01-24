@@ -28,6 +28,4 @@ to your .emacs file.
 Some comics using a different image extensions do not seem to load.
 
 #TODO
-Add proper caching and offline support.
-
 Add support for custom faces.

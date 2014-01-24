@@ -1,22 +1,3 @@
-;;; emacs-xkcd.el --- View xkcd from Emacs
-;;; Copyright 2014 Vibhav Pant <vibhavp@gmail.com>
-
-;; This file is not apart of GNU Emacs.
-
-;; GNU Emacs is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
-
-;; GNU Emacs is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-
-;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-;; Boston, MA 02110-1301, USA.
 
 (require 'json)
 (require 'url)
@@ -27,8 +8,8 @@
 (defgroup xkcd nil
   "A xkcd reader for Emacs")
 
-(defcustom xkcd-cache "/tmp/"
-  "Directory to cache images to"
+(defcustom xkcd-cache-dir "~/.emacs.d/xkcd/"
+  "Directory to cache images and json files to."
   :group 'xkcd
   :type 'directory)
 
@@ -43,22 +24,41 @@
 	    (define-key map (kbd "C-c t") 'xkcd-alt-text)
 	    map))
 
-(defun xkcd-get-json (url)
-  (let ((buffer (url-retrieve-synchronously url))
-        (json nil))
-    (with-current-buffer buffer
-      (goto-char (point-min))
-      (re-search-forward "^$")
-      (setq json (buffer-substring-no-properties (+ (point) 1) (point-max)))
-      (kill-buffer (current-buffer)))
-    json))
+(defun xkcd-get-json (url &optional num)
+  (let ((json nil))
+    (let ((file (concat xkcd-cache-dir (number-to-string num) ".json")))
+      (if (file-exists-p file)
+	  (with-current-buffer (find-file-literally file) ;; File already exists in the cache
+	    (setq json (buffer-substring-no-properties (point-min) (point-max)))
+	    (kill-buffer (current-buffer))
+	    json)
+	(let ((buffer (url-retrieve-synchronously url)))
+	  (with-current-buffer buffer
+	    (goto-char (point-min))
+	    (re-search-forward "^$")
+	    (setq json (buffer-substring-no-properties (+ (point) 1) (point-max)))
+	    (kill-buffer (current-buffer)))
+	  json)))))
 
 (defun xkcd-download (url num)
   "Download the image linked by URL. If the file arleady exists, do nothing"
-  (let ((name (concat xkcd-cache (number-to-string num) ".png")))
+  ;;check if the cache directory exists
+  (if (not (file-exists-p xkcd-cache-dir))
+      (make-directory xkcd-cache-dir))
+  (let ((name (concat xkcd-cache-dir (number-to-string num) ".png")))
     (if (file-exists-p name)
 	nil
       (url-copy-file url name))))
+
+(defun xkcd-cache-json (num json-string)
+  "Save comic json to cache directory"
+  (let ((name (concat xkcd-cache-dir (number-to-string num) ".json")))
+   (if (file-exists-p name)
+      nil
+    (with-current-buffer (find-file name)
+      (insert json-string)
+      (save-buffer)
+      (kill-buffer (current-buffer))))))
 
 (defun xkcd-get (num)
   "Get the xkcd number NUM"
@@ -74,7 +74,7 @@
   (let ((out (if (eq num nil)
 		 (xkcd-get-json "http://xkcd.com/info.0.json")
 	       (xkcd-get-json (concat "http://xkcd.com/" (number-to-string num)
-				      "/info.0.json"))))
+				      "/info.0.json") num)))
 	(img nil)
 	(num nil)
 	(title nil))
@@ -88,12 +88,13 @@
 			(cdr (assoc 'safe_title (json-read-from-string out)))))
     (insert (concat title "\n"))
     (insert-image (create-image
-		   (concat xkcd-cache
+		   (concat xkcd-cache-dir
 			   (number-to-string
 			    (cdr
 			     (assoc 'num (json-read-from-string out)))) ".png") 'png))
     (if (eq xkcd-cur nil)
 	(setq xkcd-cur (cdr (assoc 'num (json-read-from-string out)))))
+    (xkcd-cache-json num out)
     (setq xkcd-alt (cdr (assoc 'alt (json-read-from-string out))))
     (read-only-mode)
     (message title)))
@@ -112,7 +113,7 @@
   "Show random xkcd"
   (interactive)
   (xkcd-get (random (cdr (assoc 'num (json-read-from-string
-				      (get-json "http://xkcd.com/info.0.json")))))))
+				      (xkcd-get-json "http://xkcd.com/info.0.json")))))))
   
 (defun xkcd-get-latest ()
   "Get the latest xkcd"
@@ -127,4 +128,3 @@
 
 (provide 'emacs-xkcd)
 ;;; emacs-xkcd.el ends here
-
