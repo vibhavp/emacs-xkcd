@@ -113,7 +113,7 @@
   "Show random xkcd"
   (interactive)
   (xkcd-get (random (cdr (assoc 'num (json-read-from-string
-				      (xkcd-get-json "http://xkcd.com/info.0.json")))))))
+				      (xkcd-get-json "http://xkcd.com/info.0.json" 0)))))))
   
 (defun xkcd-get-latest ()
   "Get the latest xkcd"
