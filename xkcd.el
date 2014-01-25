@@ -167,5 +167,5 @@
   (interactive)
   (kill-buffer "*xkcd*"))
 
-(provide 'emacs-xkcd)
+(provide 'xkcd)
 ;;; xkcd.el ends here
