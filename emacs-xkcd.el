@@ -27,7 +27,7 @@
 (defun xkcd-get-json (url &optional num)
   (let ((json nil))
     (let ((file (concat xkcd-cache-dir (number-to-string num) ".json")))
-      (if (file-exists-p file)
+      (if (and (file-exists-p file) (not (eq num 0)))
 	  (with-current-buffer (find-file-literally file) ;; File already exists in the cache
 	    (setq json (buffer-substring-no-properties (point-min) (point-max)))
 	    (kill-buffer (current-buffer))
@@ -71,8 +71,8 @@
   (if (and (boundp 'xkcd-mode) (not xkcd-mode))
       (xkcd-mode))
   (setq xkcd-cur num)
-  (let ((out (if (eq num nil)
-		 (xkcd-get-json "http://xkcd.com/info.0.json")
+  (let ((out (if (eq num 0)
+		 (xkcd-get-json "http://xkcd.com/info.0.json" 0)
 	       (xkcd-get-json (concat "http://xkcd.com/" (number-to-string num)
 				      "/info.0.json") num)))
 	(img nil)
@@ -92,7 +92,7 @@
 			   (number-to-string
 			    (cdr
 			     (assoc 'num (json-read-from-string out)))) ".png") 'png))
-    (if (eq xkcd-cur nil)
+    (if (eq xkcd-cur 0)
 	(setq xkcd-cur (cdr (assoc 'num (json-read-from-string out)))))
     (xkcd-cache-json num out)
     (setq xkcd-alt (cdr (assoc 'alt (json-read-from-string out))))
@@ -120,7 +120,7 @@
   (interactive)
   (if (and (boundp 'xkcd-mode) (not xkcd-mode))
       (xkcd-mode))
-  (xkcd-get nil))
+  (xkcd-get 0))
 
 (defun xkcd-alt-text ()
   (interactive)
