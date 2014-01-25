@@ -1,4 +1,4 @@
-;;; emacs-xkcd.el --- View xkcd from Emacs
+;;; xkcd.el --- View xkcd from Emacs
 ;;; Copyright 2014 Vibhav Pant <vibhavp@gmail.com>
 
 ;; Url: https://github.com/vibhavp/emacs-xkcd
@@ -168,4 +168,4 @@
   (kill-buffer "*xkcd*"))
 
 (provide 'emacs-xkcd)
-;;; emacs-xkcd.el ends here
+;;; xkcd.el ends here
