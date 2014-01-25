@@ -95,6 +95,7 @@
       (save-buffer)
       (kill-buffer (current-buffer))))))
 
+;;;###autoload
 (defun xkcd-get (num)
   "Get the xkcd number NUM"
   (interactive "nEnter comic number: ")
