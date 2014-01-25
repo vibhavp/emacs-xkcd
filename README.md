@@ -3,7 +3,7 @@ emacs-xkcd
 
 [![Build Status](https://travis-ci.org/vibhavp/emacs-xkcd.png?branch=master)](https://travis-ci.org/vibhavp/emacs-xkcd)
 
-A hackish implementation of an xkcd (http://xkcd.com/) reader for Emacs.
+Implementation of an xkcd (http://xkcd.com/) reader for Emacs.
 
 Enable it by adding
 ```lisp
