@@ -22,7 +22,7 @@ Files are cached by default to ~/.emacs.d/xkcd/. This can be changed by changing
 | Keybinding | Use                            |  Function      |
 |:----------:|:------------------------------:|:--------------:|
 | `C-c r`    | Load a random xkcd             | (xkcd-rand)    |
-| `C-c r`    | Show alt-text in the minibuffer| (xkcd-alt-text)|
+| `C-c t`    | Show alt-text in the minibuffer| (xkcd-alt-text)|
 | `<right>`  | Load next xkcd                 | (xkcd-next)    |
 | `<left>`   | Load previous xkcd             | (xkcd-prev)    |
 
