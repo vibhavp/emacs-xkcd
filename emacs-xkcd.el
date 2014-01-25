@@ -22,6 +22,7 @@
 	    (define-key map (kbd "<left>") 'xkcd-prev)
 	    (define-key map (kbd "C-c r") 'xkcd-rand)
 	    (define-key map (kbd "C-c t") 'xkcd-alt-text)
+	    (define-key map (kbd "q") 'xkcd-kill-buffer)
 	    map))
 
 (defun xkcd-get-json (url &optional num)
@@ -125,6 +126,11 @@
 (defun xkcd-alt-text ()
   (interactive)
   (message xkcd-alt))
+
+(defun xkcd-kill-buffer ()
+  "Kill the xkcd buffer"
+  (interactive)
+  (kill-buffer "*xkcd*"))
 
 (provide 'emacs-xkcd)
 ;;; emacs-xkcd.el ends here
