@@ -13,7 +13,7 @@ Enable it by adding
 to your .emacs file.
 #Screenshot:
 ![alt text][screen]
-[screen]: http://i.imgur.com/JuZgm3O.png "Screenshot of emacs-xkcd"
+[screen]: http://i.imgur.com/x08oyQm.png "Screenshot of emacs-xkcd"
 #Loading up comics:
 `xkcd-get` loads up a user-specified comic.
 
