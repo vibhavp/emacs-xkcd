@@ -1,18 +1,41 @@
+;;; emacs-xkcd.el --- View xkcd from Emacs
+;;; Copyright 2014 Vibhav Pant <vibhavp@gmail.com>
+
+;; Url: https://github.com/vibhavp/emacs-xkcd
+;; Author: Vibhav Pant <vibhavp@gmail.com>
+;; Version: 1.0
+;; Package-Requires: ((json "1.4"))
+;; Keywords: xkcd webcomic
+
+;; This file is not a part of GNU Emacs.
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; emacs-xkcd uses the JSON interface provided by xkcd (http://xkcd.com)
+;; to fetch comics.
+
+;; Comics can be viewed offline as they are stored by default in
+;; ~/.emacs.d/xkcd/
+
+;; For more information, visit https://github.com/vibhavp/emacs-xkcd
 
 (require 'json)
 (require 'url)
 
-(defvar xkcd-alt nil)
-(defvar xkcd-cur nil)
-
-(defgroup xkcd nil
-  "A xkcd reader for Emacs")
-
-(defcustom xkcd-cache-dir "~/.emacs.d/xkcd/"
-  "Directory to cache images and json files to."
-  :group 'xkcd
-  :type 'directory)
-
+;;;###autoload
 (define-minor-mode xkcd-mode
   "Minor mode for viewing xkcd in Emacs"
   :lighter " xkcd"
@@ -24,6 +47,17 @@
 	    (define-key map (kbd "C-c t") 'xkcd-alt-text)
 	    (define-key map (kbd "q") 'xkcd-kill-buffer)
 	    map))
+
+(defvar xkcd-alt nil)
+(defvar xkcd-cur nil)
+
+(defgroup xkcd nil
+  "A xkcd reader for Emacs")
+
+(defcustom xkcd-cache-dir "~/.emacs.d/xkcd/"
+  "Directory to cache images and json files to."
+  :group 'xkcd
+  :type 'directory)
 
 (defun xkcd-get-json (url &optional num)
   (let ((json nil))
