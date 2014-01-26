@@ -5,12 +5,17 @@ emacs-xkcd
 
 Implementation of an xkcd (http://xkcd.com/) reader for Emacs.
 
-Enable it by adding
+#Installation
+
+## Via package.el (Melpa)
+emacs-xkcd is now available on [Melpa](http://melpa.milkbox.net). If you have added Melpa as a repository, the package can be installed by a simple `M-x package-install xkcd`.
+
+## Via Github
+Clone this repository to a desired location, and add the following snippet to your .emacs:
 ```lisp
 (add-to-list 'load-path (expand-file-name "/path/to/emacs-xkcd.el"))
 (require 'xkcd)
 ```
-to your .emacs file.
 #Screenshot:
 ![alt text][screen]
 [screen]: http://i.imgur.com/x08oyQm.png "Screenshot of emacs-xkcd"
