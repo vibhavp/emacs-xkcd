@@ -160,6 +160,7 @@
   (xkcd-get 0))
 
 (defun xkcd-alt-text ()
+  "View the alt text in the buffer"
   (interactive)
   (message xkcd-alt))
 
