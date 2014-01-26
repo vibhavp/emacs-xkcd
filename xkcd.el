@@ -1,5 +1,6 @@
 ;;; xkcd.el --- View xkcd from Emacs
-;;; Copyright 2014 Vibhav Pant <vibhavp@gmail.com>
+
+;;; Copyright (C) 2014 Vibhav Pant <vibhavp@gmail.com>
 
 ;; Url: https://github.com/vibhavp/emacs-xkcd
 ;; Author: Vibhav Pant <vibhavp@gmail.com>
@@ -7,7 +8,16 @@
 ;; Package-Requires: ((json "1.4"))
 ;; Keywords: xkcd webcomic
 
+;;; Commentary:
+
+;; emacs-xkcd uses the JSON interface provided by xkcd (http://xkcd.com)
+;; to fetch comics.
+;; Comics can be viewed offline as they are stored by default in
+;; ~/.emacs.d/xkcd/
+;; For more information, visit https://github.com/vibhavp/emacs-xkcd
 ;; This file is not a part of GNU Emacs.
+
+;;; License:
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -22,16 +32,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary:
-
-;; emacs-xkcd uses the JSON interface provided by xkcd (http://xkcd.com)
-;; to fetch comics.
-
-;; Comics can be viewed offline as they are stored by default in
-;; ~/.emacs.d/xkcd/
-
-;; For more information, visit https://github.com/vibhavp/emacs-xkcd
-
+;;; Code:
 (require 'json)
 (require 'url)
 
