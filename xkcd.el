@@ -114,6 +114,7 @@ be located in xkcd-cache-dir"
 (defun xkcd-get (num)
   "Get the xkcd number NUM"
   (interactive "nEnter comic number: ")
+  (xkcd-update-latest)
   (get-buffer-create "*xkcd*")
   (switch-to-buffer "*xkcd*")
   (if buffer-read-only
