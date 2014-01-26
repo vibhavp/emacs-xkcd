@@ -5,7 +5,7 @@
 ;; Url: https://github.com/vibhavp/emacs-xkcd
 ;; Author: Vibhav Pant <vibhavp@gmail.com>
 ;; Version: 1.0
-;; Package-Requires: ((json "1.4"))
+;; Package-Requires: ((json "1.3"))
 ;; Keywords: xkcd webcomic
 
 ;;; Commentary:
