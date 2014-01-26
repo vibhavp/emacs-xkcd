@@ -51,6 +51,7 @@
 
 (defvar xkcd-alt nil)
 (defvar xkcd-cur nil)
+(defvar xkcd-latest 0)
 
 (defgroup xkcd nil
   "A xkcd reader for Emacs")
@@ -60,21 +61,25 @@
   :group 'xkcd
   :type 'directory)
 
+(defcustom xkcd-cache-latest (concat xkcd-cache-dir "latest")
+  "File to store the latest cached xkcd number in. Should preferably
+be located in xkcd-cache-dir"
+  :group 'xkcd
+  :type 'file)
+
 (defun xkcd-get-json (url &optional num)
-  (let ((json nil))
-    (let ((file (concat xkcd-cache-dir (number-to-string num) ".json")))
-      (if (and (file-exists-p file) (not (eq num 0)))
-	  (with-current-buffer (find-file-literally file) ;; File already exists in the cache
-	    (setq json (buffer-substring-no-properties (point-min) (point-max)))
-	    (kill-buffer (current-buffer))
-	    json)
-	(let ((buffer (url-retrieve-synchronously url)))
-	  (with-current-buffer buffer
-	    (goto-char (point-min))
-	    (re-search-forward "^$")
-	    (setq json (buffer-substring-no-properties (+ (point) 1) (point-max)))
-	    (kill-buffer (current-buffer)))
-	  json)))))
+  (let ((json-string nil)
+	(file (concat xkcd-cache-dir (number-to-string num) ".json")))
+    (with-current-buffer (if (and (file-exists-p file) (not (eq num 0)))
+			     (find-file file)
+			   (url-retrieve-synchronously url))
+      (goto-char (point-min))
+      (if (not (and (file-exists-p file) (not (eq num 0))))
+	  (re-search-forward "^$")
+	(goto-char (point-min)))
+      (setq json-string (buffer-substring-no-properties (point) (point-max)))
+      (kill-buffer (current-buffer)))
+    json-string))
 
 (defun xkcd-download (url num)
   "Download the image linked by URL. If the file arleady exists, do nothing"
@@ -87,14 +92,23 @@
       (url-copy-file url name))))
 
 (defun xkcd-cache-json (num json-string)
-  "Save comic json to cache directory"
-  (let ((name (concat xkcd-cache-dir (number-to-string num) ".json")))
-   (if (file-exists-p name)
-      nil
-    (with-current-buffer (find-file name)
-      (insert json-string)
-      (save-buffer)
-      (kill-buffer (current-buffer))))))
+  "Save xkcd NUM's JSON-STRING to cache directory, and write xkcd-latest to a file"
+  (let ((name (concat xkcd-cache-dir (number-to-string num) ".json"))
+	(file (concat xkcd-cache-latest)))
+    (if (> num xkcd-latest)
+	(with-current-buffer (find-file file)
+	  (setq xkcd-latest num)
+	  (erase-buffer)
+	  (insert (number-to-string num))
+	  (save-buffer)
+	  (kill-buffer (current-buffer))))
+    
+    (if (file-exists-p name)
+	nil
+      (with-current-buffer (find-file name)
+	(insert json-string)
+	(save-buffer)
+	(kill-buffer (current-buffer))))))
 
 ;;;###autoload
 (defun xkcd-get (num)
@@ -119,7 +133,7 @@
     (setq img (cdr (assoc 'img (json-read-from-string out))))
     
     ;; FIXME: This looks pretty ugly.
-    (message "Downloading comic...")
+    (message "Getting comic...")
     (xkcd-download img num)
     (setq title (format "%d: %s" (cdr (assoc 'num (json-read-from-string out)))
 			(cdr (assoc 'safe_title (json-read-from-string out)))))
@@ -155,9 +169,13 @@
 (defun xkcd-get-latest ()
   "Get the latest xkcd"
   (interactive)
-  (if (and (boundp 'xkcd-mode) (not xkcd-mode))
-      (xkcd-mode))
   (xkcd-get 0))
+
+(defun xkcd-get-latest-cached ()
+  "Get the latest cached xkcd"
+  (interactive)
+  (xkcd-update-latest)
+  (xkcd-get xkcd-latest))
 
 (defun xkcd-alt-text ()
   "View the alt text in the buffer"
@@ -168,6 +186,14 @@
   "Kill the xkcd buffer"
   (interactive)
   (kill-buffer "*xkcd*"))
+
+(defun xkcd-update-latest ()
+  "Update xkcd-latest to point to the last cached comic"
+  (let ((file (concat xkcd-cache-latest)))
+    (with-current-buffer (find-file file)
+      (setq xkcd-latest (string-to-number
+			 (buffer-substring-no-properties (point-min) (point-max))))
+      (kill-buffer (current-buffer)))))
 
 (provide 'xkcd)
 ;;; xkcd.el ends here
