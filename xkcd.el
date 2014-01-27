@@ -44,8 +44,8 @@
   :keymap (let ((map (make-sparse-keymap)))
 	    (define-key map (kbd "<right>") 'xkcd-next)
 	    (define-key map (kbd "<left>") 'xkcd-prev)
-	    (define-key map (kbd "C-c r") 'xkcd-rand)
-	    (define-key map (kbd "C-c t") 'xkcd-alt-text)
+	    (define-key map (kbd "r") 'xkcd-rand)
+	    (define-key map (kbd "t") 'xkcd-alt-text)
 	    (define-key map (kbd "q") 'xkcd-kill-buffer)
 	    map))
 
@@ -139,11 +139,14 @@ be located in xkcd-cache-dir"
     (setq title (format "%d: %s" (cdr (assoc 'num (json-read-from-string out)))
 			(cdr (assoc 'safe_title (json-read-from-string out)))))
     (insert (concat title "\n"))
-    (insert-image (create-image
-		   (concat xkcd-cache-dir
-			   (number-to-string
-			    (cdr
-			     (assoc 'num (json-read-from-string out)))) ".png") 'png))
+    (let ((start (point)))
+      (insert-image (create-image
+                     (concat xkcd-cache-dir
+                             (number-to-string
+                              (cdr
+                               (assoc 'num (json-read-from-string out)))) ".png") 'png))
+      (add-text-properties start (point) '(help-echo xkcd-alt))
+      )
     (if (eq xkcd-cur 0)
 	(setq xkcd-cur (cdr (assoc 'num (json-read-from-string out)))))
     (xkcd-cache-json num out)
@@ -171,6 +174,8 @@ be located in xkcd-cache-dir"
   "Get the latest xkcd"
   (interactive)
   (xkcd-get 0))
+
+(defalias 'xkcd 'xkcd-get-latest)
 
 (defun xkcd-get-latest-cached ()
   "Get the latest cached xkcd"

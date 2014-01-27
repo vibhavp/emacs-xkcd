@@ -28,8 +28,8 @@ Files are cached by default to ~/.emacs.d/xkcd/. This can be changed by changing
 # Current keybindings:
 | Keybinding | Use                            |  Function      |
 |:----------:|:------------------------------:|:--------------:|
-| `C-c r`    | Load a random xkcd             | (xkcd-rand)    |
-| `C-c t`    | Show alt-text in the minibuffer| (xkcd-alt-text)|
+| `r`        | Load a random xkcd             | (xkcd-rand)    |
+| `t`        | Show alt-text in the minibuffer| (xkcd-alt-text)|
 | `<right>`  | Load next xkcd                 | (xkcd-next)    |
 | `<left>`   | Load previous xkcd             | (xkcd-prev)    |
 
