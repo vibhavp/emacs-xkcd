@@ -44,8 +44,8 @@
   :keymap (let ((map (make-sparse-keymap)))
 	    (define-key map (kbd "<right>") 'xkcd-next)
 	    (define-key map (kbd "<left>") 'xkcd-prev)
-	    (define-key map (kbd "C-c r") 'xkcd-rand)
-	    (define-key map (kbd "C-c t") 'xkcd-alt-text)
+	    (define-key map (kbd "r") 'xkcd-rand)
+	    (define-key map (kbd "t") 'xkcd-alt-text)
 	    (define-key map (kbd "q") 'xkcd-kill-buffer)
 	    map))
 
