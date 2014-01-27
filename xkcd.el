@@ -175,6 +175,8 @@ be located in xkcd-cache-dir"
   (interactive)
   (xkcd-get 0))
 
+(defalias 'xkcd 'xkcd-get-latest)
+
 (defun xkcd-get-latest-cached ()
   "Get the latest cached xkcd"
   (interactive)
