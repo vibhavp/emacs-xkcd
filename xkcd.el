@@ -139,11 +139,14 @@ be located in xkcd-cache-dir"
     (setq title (format "%d: %s" (cdr (assoc 'num (json-read-from-string out)))
 			(cdr (assoc 'safe_title (json-read-from-string out)))))
     (insert (concat title "\n"))
-    (insert-image (create-image
-		   (concat xkcd-cache-dir
-			   (number-to-string
-			    (cdr
-			     (assoc 'num (json-read-from-string out)))) ".png") 'png))
+    (let ((start (point)))
+      (insert-image (create-image
+                     (concat xkcd-cache-dir
+                             (number-to-string
+                              (cdr
+                               (assoc 'num (json-read-from-string out)))) ".png") 'png))
+      (add-text-properties start (point) '(help-echo xkcd-alt))
+      )
     (if (eq xkcd-cur 0)
 	(setq xkcd-cur (cdr (assoc 'num (json-read-from-string out)))))
     (xkcd-cache-json num out)
