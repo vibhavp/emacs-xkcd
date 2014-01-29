@@ -37,17 +37,16 @@
 (require 'url)
 
 ;;;###autoload
-(define-minor-mode xkcd-mode
-  "Minor mode for viewing xkcd in Emacs"
-  :lighter " xkcd"
-  :global nil
-  :keymap (let ((map (make-sparse-keymap)))
-	    (define-key map (kbd "<right>") 'xkcd-next)
-	    (define-key map (kbd "<left>") 'xkcd-prev)
-	    (define-key map (kbd "r") 'xkcd-rand)
-	    (define-key map (kbd "t") 'xkcd-alt-text)
-	    (define-key map (kbd "q") 'xkcd-kill-buffer)
-	    map))
+(define-derived-mode xkcd-mode special-mode "xkcd"
+  "Major mode for viewing xkcd (http://xkcd.com/) comics."
+  :group 'xkcd
+  )
+
+(define-key xkcd-mode-map (kbd "<right>") 'xkcd-next)
+(define-key xkcd-mode-map (kbd "<left>") 'xkcd-prev)
+(define-key xkcd-mode-map (kbd "r") 'xkcd-rand)
+(define-key xkcd-mode-map (kbd "t") 'xkcd-alt-text)
+(define-key xkcd-mode-map (kbd "q") 'xkcd-kill-buffer)
 
 (defvar xkcd-alt nil)
 (defvar xkcd-cur nil)
@@ -117,11 +116,11 @@ be located in xkcd-cache-dir"
   (xkcd-update-latest)
   (get-buffer-create "*xkcd*")
   (switch-to-buffer "*xkcd*")
+  (if (and (boundp 'xkcd-mode) (not xkcd-mode))
+      (xkcd-mode))
   (if buffer-read-only
       (toggle-read-only))
   (erase-buffer)
-  (if (and (boundp 'xkcd-mode) (not xkcd-mode))
-      (xkcd-mode))
   (setq xkcd-cur num)
   (let ((out (if (eq num 0)
 		 (xkcd-get-json "http://xkcd.com/info.0.json" 0)
