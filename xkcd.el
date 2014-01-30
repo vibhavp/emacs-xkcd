@@ -81,15 +81,27 @@ be located in xkcd-cache-dir"
       (kill-buffer (current-buffer)))
     json-string))
 
+(defun xkcd-get-image-type (url)
+  (let ((substr (substring url (- (length url) 3))))
+   (cond
+    ((string= substr "png")
+     'png)
+    ((string= substr "jpg")
+     'jpg)
+    (t 'gif))))
+
 (defun xkcd-download (url num)
   "Download the image linked by URL. If the file arleady exists, do nothing"
   ;;check if the cache directory exists
   (if (not (file-exists-p xkcd-cache-dir))
       (make-directory xkcd-cache-dir))
-  (let ((name (concat xkcd-cache-dir (number-to-string num) ".png")))
+  (let ((name (concat xkcd-cache-dir (number-to-string num) "." (substring
+							     url
+							     (- (length url) 3)))))
     (if (file-exists-p name)
-	nil
-      (url-copy-file url name))))
+	name
+      (url-copy-file url name))
+    name))
 
 (defun xkcd-cache-json (num json-string)
   "Save xkcd NUM's JSON-STRING to cache directory, and write xkcd-latest to a file"
@@ -110,6 +122,19 @@ be located in xkcd-cache-dir"
 	(save-buffer)
 	(kill-buffer (current-buffer))))))
 
+(defun xkcd-insert-image (file num)
+  "Insert image FILENAME in buffer with the title-text, and animate if necessary"
+  (let ((image (create-image (concat xkcd-cache-dir
+				     (number-to-string num)
+				     "."
+				     (substring file (- (length file) 3)))
+			     (xkcd-get-image-type file)))
+	(start (point)))
+    (insert-image image)
+    (if (image-multi-frame-p image)
+	(image-animate image 0 t))
+    (add-text-properties start (point) '(help-echo xkcd-alt))))
+
 ;;;###autoload
 (defun xkcd-get (num)
   "Get the xkcd number NUM"
@@ -129,24 +154,18 @@ be located in xkcd-cache-dir"
 				      "/info.0.json") num)))
 	(img nil)
 	(num nil)
-	(title nil))
+	(title nil)
+	(file nil))
     (setq num (cdr (assoc 'num (json-read-from-string out))))
     (setq img (cdr (assoc 'img (json-read-from-string out))))
     
     ;; FIXME: This looks pretty ugly.
     (message "Getting comic...")
-    (xkcd-download img num)
+    (setq file (xkcd-download img num))
     (setq title (format "%d: %s" (cdr (assoc 'num (json-read-from-string out)))
 			(cdr (assoc 'safe_title (json-read-from-string out)))))
     (insert (concat title "\n"))
-    (let ((start (point)))
-      (insert-image (create-image
-                     (concat xkcd-cache-dir
-                             (number-to-string
-                              (cdr
-                               (assoc 'num (json-read-from-string out)))) ".png") 'png))
-      (add-text-properties start (point) '(help-echo xkcd-alt))
-      )
+    (xkcd-insert-image file num)
     (if (eq xkcd-cur 0)
 	(setq xkcd-cur (cdr (assoc 'num (json-read-from-string out)))))
     (xkcd-cache-json num out)
