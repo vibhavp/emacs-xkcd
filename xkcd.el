@@ -39,8 +39,7 @@
 ;;;###autoload
 (define-derived-mode xkcd-mode special-mode "xkcd"
   "Major mode for viewing xkcd (http://xkcd.com/) comics."
-  :group 'xkcd
-  )
+  :group 'xkcd)
 
 (define-key xkcd-mode-map (kbd "<right>") 'xkcd-next)
 (define-key xkcd-mode-map (kbd "<left>") 'xkcd-prev)
@@ -72,34 +71,32 @@ Should preferably be located in `xkcd-cache-dir'."
 If the file NUM.json exists, use it instead.
 If NUM is 0, always download from URL.
 The return value is a string."
-  (let ((json-string nil)
-	(file (concat xkcd-cache-dir (number-to-string num) ".json")))
-    (with-current-buffer (if (and (file-exists-p file) (not (eq num 0)))
+  (let* ((file (format "%s%d.json" xkcd-cache-dir num))
+         (cached (and (file-exists-p file) (not (eq num 0)))))
+    (with-current-buffer (if cached
 			     (find-file file)
 			   (url-retrieve-synchronously url))
       (goto-char (point-min))
-      (if (not (and (file-exists-p file) (not (eq num 0))))
-	  (re-search-forward "^$")
-	(goto-char (point-min)))
-      (setq json-string (buffer-substring-no-properties (point) (point-max)))
-      (kill-buffer (current-buffer)))
-    json-string))
+      (unless cached (re-search-forward "^$"))
+      (prog1
+          (buffer-substring-no-properties (point) (point-max))
+        (kill-buffer (current-buffer))))))
+
 
 (defun xkcd-download (url num)
   "Download the image linked by URL to NUM.png.
 If the file NUM.png arleady exists, do nothing"
   ;;check if the cache directory exists
-  (if (not (file-exists-p xkcd-cache-dir))
-      (make-directory xkcd-cache-dir))
-  (let ((name (concat xkcd-cache-dir (number-to-string num) ".png")))
-    (if (file-exists-p name)
-	nil
+  (unless (file-exists-p xkcd-cache-dir)
+    (make-directory xkcd-cache-dir))
+  (let ((name (format "%s%d.png" xkcd-cache-dir num)))
+    (unless (file-exists-p name)
       (url-copy-file url name))))
 
 (defun xkcd-cache-json (num json-string)
   "Save xkcd NUM's JSON-STRING to cache directory, and write xkcd-latest to a file."
-  (let ((name (concat xkcd-cache-dir (number-to-string num) ".json"))
-	(file (concat xkcd-cache-latest)))
+  (let ((name (format "%s%d.json" xkcd-cache-dir num))
+	(file xkcd-cache-latest))
     (if (> num xkcd-latest)
 	(with-current-buffer (find-file file)
 	  (setq xkcd-latest num)
@@ -108,8 +105,7 @@ If the file NUM.png arleady exists, do nothing"
 	  (save-buffer)
 	  (kill-buffer (current-buffer))))
 
-    (if (file-exists-p name)
-	nil
+    (unless (file-exists-p name)
       (with-current-buffer (find-file name)
 	(insert json-string)
 	(save-buffer)
@@ -122,39 +118,32 @@ If the file NUM.png arleady exists, do nothing"
   (xkcd-update-latest)
   (get-buffer-create "*xkcd*")
   (switch-to-buffer "*xkcd*")
-  (if (and (boundp 'xkcd-mode) (not xkcd-mode))
-      (xkcd-mode))
+  (xkcd-mode)
   (let (buffer-read-only)
     (erase-buffer)
     (setq xkcd-cur num)
-    (let ((out (if (eq num 0)
-                   (xkcd-get-json "http://xkcd.com/info.0.json" 0)
-                 (xkcd-get-json (concat "http://xkcd.com/" (number-to-string num)
-                                        "/info.0.json") num)))
-          (img nil)
-          (num nil)
-          (title nil))
-      (setq num (cdr (assoc 'num (json-read-from-string out))))
-      (setq img (cdr (assoc 'img (json-read-from-string out))))
-
-      ;; FIXME: This looks pretty ugly.
+    (let* ((url (if (eq num 0)
+                    "http://xkcd.com/info.0.json"
+                  (format "http://xkcd.com/%d/info.0.json" num)))
+           (out (xkcd-get-json url num))
+           (json-assoc (json-read-from-string out))
+           (img (cdr (assoc 'img json-assoc)))
+           (num (cdr (assoc 'num json-assoc)))
+           (safe-title (cdr (assoc 'safe_title json-assoc)))
+           title)
       (message "Getting comic...")
       (xkcd-download img num)
-      (setq title (format "%d: %s" (cdr (assoc 'num (json-read-from-string out)))
-                          (cdr (assoc 'safe_title (json-read-from-string out)))))
-      (insert (concat title "\n"))
+      (setq title (format "%d: %s" num safe-title))
+      (insert title "\n")
       (let ((start (point)))
         (insert-image (create-image
-                       (concat xkcd-cache-dir
-                               (number-to-string
-                                (cdr
-                                 (assoc 'num (json-read-from-string out)))) ".png") 'png))
-        (add-text-properties start (point) '(help-echo xkcd-alt))
-        )
+                       (format "%s%d.png" xkcd-cache-dir num)
+                       'png))
+        (add-text-properties start (point) '(help-echo xkcd-alt)))
       (if (eq xkcd-cur 0)
-          (setq xkcd-cur (cdr (assoc 'num (json-read-from-string out)))))
+          (setq xkcd-cur num))
       (xkcd-cache-json num out)
-      (setq xkcd-alt (cdr (assoc 'alt (json-read-from-string out))))
+      (setq xkcd-alt (cdr (assoc 'alt json-assoc)))
       (message title))))
 
 (defun xkcd-next ()
@@ -170,8 +159,10 @@ If the file NUM.png arleady exists, do nothing"
 (defun xkcd-rand ()
   "Show random xkcd."
   (interactive)
-  (xkcd-get (random (cdr (assoc 'num (json-read-from-string
-				      (xkcd-get-json "http://xkcd.com/info.0.json" 0)))))))
+  (let* ((url "http://xkcd.com/info.0.json")
+         (last (cdr (assoc 'num (json-read-from-string
+                                 (xkcd-get-json url 0))))))
+    (xkcd-get (random last))))
 
 (defun xkcd-get-latest ()
   "Get the latest xkcd."
@@ -198,7 +189,7 @@ If the file NUM.png arleady exists, do nothing"
 
 (defun xkcd-update-latest ()
   "Update `xkcd-latest' to point to the last cached comic."
-  (let ((file (concat xkcd-cache-latest)))
+  (let ((file xkcd-cache-latest))
     (with-current-buffer (find-file file)
       (setq xkcd-latest (string-to-number
 			 (buffer-substring-no-properties (point-min) (point-max))))
