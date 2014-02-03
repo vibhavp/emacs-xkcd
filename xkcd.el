@@ -37,24 +37,23 @@
 (require 'url)
 
 ;;;###autoload
-(define-minor-mode xkcd-mode
-  "Minor mode for viewing xkcd in Emacs"
-  :lighter " xkcd"
-  :global nil
-  :keymap (let ((map (make-sparse-keymap)))
-	    (define-key map (kbd "<right>") 'xkcd-next)
-	    (define-key map (kbd "<left>") 'xkcd-prev)
-	    (define-key map (kbd "r") 'xkcd-rand)
-	    (define-key map (kbd "t") 'xkcd-alt-text)
-	    (define-key map (kbd "q") 'xkcd-kill-buffer)
-	    map))
+(define-derived-mode xkcd-mode special-mode "xkcd"
+  "Major mode for viewing xkcd (http://xkcd.com/) comics."
+  :group 'xkcd)
+
+(define-key xkcd-mode-map (kbd "<right>") 'xkcd-next)
+(define-key xkcd-mode-map (kbd "<left>") 'xkcd-prev)
+(define-key xkcd-mode-map (kbd "r") 'xkcd-rand)
+(define-key xkcd-mode-map (kbd "t") 'xkcd-alt-text)
+(define-key xkcd-mode-map (kbd "q") 'xkcd-kill-buffer)
 
 (defvar xkcd-alt nil)
 (defvar xkcd-cur nil)
 (defvar xkcd-latest 0)
 
 (defgroup xkcd nil
-  "A xkcd reader for Emacs")
+  "A xkcd reader for Emacs"
+  :group 'multimedia)
 
 (defcustom xkcd-cache-dir "~/.emacs.d/xkcd/"
   "Directory to cache images and json files to."
@@ -68,18 +67,20 @@ be located in xkcd-cache-dir"
   :type 'file)
 
 (defun xkcd-get-json (url &optional num)
-  (let ((json-string nil)
-	(file (concat xkcd-cache-dir (number-to-string num) ".json")))
-    (with-current-buffer (if (and (file-exists-p file) (not (eq num 0)))
+  "Fetch the Json coming from URL.
+If the file NUM.json exists, use it instead.
+If NUM is 0, always download from URL.
+The return value is a string."
+  (let* ((file (format "%s%d.json" xkcd-cache-dir num))
+	 (cached (and (file-exists-p file) (not (eq num 0)))))
+    (with-current-buffer (if cached
 			     (find-file file)
-			   (url-retrieve-synchronously url))
-      (goto-char (point-min))
-      (if (not (and (file-exists-p file) (not (eq num 0))))
-	  (re-search-forward "^$")
-	(goto-char (point-min)))
-      (setq json-string (buffer-substring-no-properties (point) (point-max)))
-      (kill-buffer (current-buffer)))
-    json-string))
+			   (url-retrieve-synchronously url)))
+    (goto-char (point-min))
+    (unless cached (re-search-forward "^$"))
+    (prog1
+	(buffer-substring-no-properties (point) (point-min))
+      (kill-buffer (current-buffer)))))
 
 (defun xkcd-get-image-type (url)
   (let ((substr (substring url (- (length url) 3))))
@@ -91,10 +92,9 @@ be located in xkcd-cache-dir"
     (t 'gif))))
 
 (defun xkcd-download (url num)
-  "Download the image linked by URL. If the file arleady exists, do nothing"
+  "Download the image linked by URL to NUM. If NUM arleady exists, do nothing"
   ;;check if the cache directory exists
-  (if (not (file-exists-p xkcd-cache-dir))
-      (make-directory xkcd-cache-dir))
+  (unless (file-exists-p xkcd-cache-dir) (make-directory xkcd-cache-dir))
   (let ((name (concat xkcd-cache-dir (number-to-string num) "." (substring
 							     url
 							     (- (length url) 3)))))
@@ -104,26 +104,26 @@ be located in xkcd-cache-dir"
     name))
 
 (defun xkcd-cache-json (num json-string)
-  "Save xkcd NUM's JSON-STRING to cache directory, and write xkcd-latest to a file"
-  (let ((name (concat xkcd-cache-dir (number-to-string num) ".json"))
-	(file (concat xkcd-cache-latest)))
+  "Save xkcd NUM's JSON-STRING to cache directory, 
+and write xkcd-latest to a file"
+  (let ((name (format "%s%d.json" xkcd-cache-dir num)))
     (if (> num xkcd-latest)
-	(with-current-buffer (find-file file)
+	(with-current-buffer (find-file xkcd-cache-latest)
 	  (setq xkcd-latest num)
 	  (erase-buffer)
 	  (insert (number-to-string num))
 	  (save-buffer)
 	  (kill-buffer (current-buffer))))
     
-    (if (file-exists-p name)
-	nil
+    (unless (file-exists-p (name))
       (with-current-buffer (find-file name)
 	(insert json-string)
 	(save-buffer)
 	(kill-buffer (current-buffer))))))
 
 (defun xkcd-insert-image (file num)
-  "Insert image FILENAME in buffer with the title-text, and animate if necessary"
+  "Insert image FILENAME in buffer with the title-text,
+and animate if FILENAME is a gif"
   (let ((image (create-image (concat xkcd-cache-dir
 				     (number-to-string num)
 				     "."
