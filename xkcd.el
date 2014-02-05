@@ -79,37 +79,59 @@ The return value is a string."
       (goto-char (point-min))
       (unless cached (re-search-forward "^$"))
       (prog1
-          (buffer-substring-no-properties (point) (point-max))
-        (kill-buffer (current-buffer))))))
+	  (buffer-substring-no-properties (+ (point) 1) (point-max))
+	(kill-buffer (current-buffer))))))
 
+(defun xkcd-get-image-type (url)
+  (let ((substr (substring url (- (length url) 3))))
+   (cond
+    ((string= substr "png")
+     'png)
+    ((string= substr "jpg")
+     'jpg)
+    (t 'gif))))
 
 (defun xkcd-download (url num)
-  "Download the image linked by URL to NUM.png.
-If the file NUM.png arleady exists, do nothing"
+  "Download the image linked by URL to NUM. If NUM arleady exists, do nothing"
   ;;check if the cache directory exists
   (unless (file-exists-p xkcd-cache-dir)
     (make-directory xkcd-cache-dir))
-  (let ((name (format "%s%d.png" xkcd-cache-dir num)))
-    (unless (file-exists-p name)
-      (url-copy-file url name))))
+  (let ((name (format "%s%s.%s" xkcd-cache-dir (number-to-string num)
+		      (substring url (- (length url) 3)))))
+    (if (file-exists-p name)
+	name
+      (url-copy-file url name))
+    name))
 
 (defun xkcd-cache-json (num json-string)
-  "Save xkcd NUM's JSON-STRING to cache directory, and write xkcd-latest to a file."
-  (let ((name (format "%s%d.json" xkcd-cache-dir num))
-	(file xkcd-cache-latest))
+  "Save xkcd NUM's JSON-STRING to cache directory,
+and write xkcd-latest to a file"
+  (let ((name (format "%s%d.json" xkcd-cache-dir num)))
     (if (> num xkcd-latest)
-	(with-current-buffer (find-file file)
+	(with-current-buffer (find-file xkcd-cache-latest)
 	  (setq xkcd-latest num)
 	  (erase-buffer)
 	  (insert (number-to-string num))
 	  (save-buffer)
 	  (kill-buffer (current-buffer))))
-
     (unless (file-exists-p name)
       (with-current-buffer (find-file name)
 	(insert json-string)
 	(save-buffer)
 	(kill-buffer (current-buffer))))))
+
+(defun xkcd-insert-image (file num)
+  "Insert image FILENAME in buffer with the title-text,
+and animate if FILENAME is a gif"
+  (let ((image (create-image (format "%s%d.%s" xkcd-cache-dir
+				     num
+				     (substring file (- (length file) 3)))
+			     (xkcd-get-image-type file)))
+	(start (point)))
+    (insert-image image)
+    (if (image-multi-frame-p image)
+	(image-animate image 0 t))
+    (add-text-properties start (point) '(help-echo xkcd-alt))))
 
 ;;;###autoload
 (defun xkcd-get (num)
@@ -130,16 +152,12 @@ If the file NUM.png arleady exists, do nothing"
            (img (cdr (assoc 'img json-assoc)))
            (num (cdr (assoc 'num json-assoc)))
            (safe-title (cdr (assoc 'safe_title json-assoc)))
-           title)
+           title file)
       (message "Getting comic...")
-      (xkcd-download img num)
+      (setq file (xkcd-download img num))
       (setq title (format "%d: %s" num safe-title))
       (insert title "\n")
-      (let ((start (point)))
-        (insert-image (create-image
-                       (format "%s%d.png" xkcd-cache-dir num)
-                       'png))
-        (add-text-properties start (point) '(help-echo xkcd-alt)))
+      (xkcd-insert-image file num)
       (if (eq xkcd-cur 0)
           (setq xkcd-cur num))
       (xkcd-cache-json num out)

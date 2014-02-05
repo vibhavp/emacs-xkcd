@@ -24,7 +24,7 @@ Clone this repository to a desired location, and add the following snippet to yo
 
 Files are cached by default to ~/.emacs.d/xkcd/. This can be changed by changing `xkcd-cache-dir` in the group "xkcd". (customize-group xkcd)
 
-`xkcd-get-latest` loads up the latest xkcd.
+`xkcd` loads up the latest xkcd.
 # Current keybindings:
 | Keybinding | Use                            |  Function      |
 |:----------:|:------------------------------:|:--------------:|
@@ -32,9 +32,6 @@ Files are cached by default to ~/.emacs.d/xkcd/. This can be changed by changing
 | `t`        | Show alt-text in the minibuffer| (xkcd-alt-text)|
 | `<right>`  | Load next xkcd                 | (xkcd-next)    |
 | `<left>`   | Load previous xkcd             | (xkcd-prev)    |
-
-#Bugs
-Some comics using a different image extension do not to load.
 
 #TODO
 Add support for custom faces.
