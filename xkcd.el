@@ -61,8 +61,8 @@
   :type 'directory)
 
 (defcustom xkcd-cache-latest (concat xkcd-cache-dir "latest")
-  "File to store the latest cached xkcd number in. Should preferably
-be located in xkcd-cache-dir"
+  "File to store the latest cached xkcd number in.
+Should preferably be located in `xkcd-cache-dir'."
   :group 'xkcd
   :type 'file)
 
@@ -72,7 +72,7 @@ If the file NUM.json exists, use it instead.
 If NUM is 0, always download from URL.
 The return value is a string."
   (let* ((file (format "%s%d.json" xkcd-cache-dir num))
-	 (cached (and (file-exists-p file) (not (eq num 0)))))
+         (cached (and (file-exists-p file) (not (eq num 0)))))
     (with-current-buffer (if cached
 			     (find-file file)
 			   (url-retrieve-synchronously url))
@@ -83,6 +83,7 @@ The return value is a string."
 	(kill-buffer (current-buffer))))))
 
 (defun xkcd-get-image-type (url)
+  "Return a symbol (`png', `jpg' or `gif') corresponding to the last characters of URL."
   (let ((substr (substring url (- (length url) 3))))
    (cond
     ((string= substr "png")
@@ -92,9 +93,10 @@ The return value is a string."
     (t 'gif))))
 
 (defun xkcd-download (url num)
-  "Download the image linked by URL to NUM. If NUM arleady exists, do nothing"
+  "Download the image linked by URL to NUM.  If NUM arleady exists, do nothing."
   ;;check if the cache directory exists
-  (unless (file-exists-p xkcd-cache-dir) (make-directory xkcd-cache-dir))
+  (unless (file-exists-p xkcd-cache-dir)
+    (make-directory xkcd-cache-dir))
   (let ((name (format "%s%s.%s" xkcd-cache-dir (number-to-string num)
 		      (substring url (- (length url) 3)))))
     (if (file-exists-p name)
@@ -103,8 +105,7 @@ The return value is a string."
     name))
 
 (defun xkcd-cache-json (num json-string)
-  "Save xkcd NUM's JSON-STRING to cache directory, 
-and write xkcd-latest to a file"
+  "Save xkcd NUM's JSON-STRING to cache directory and write xkcd-latest to a file."
   (let ((name (format "%s%d.json" xkcd-cache-dir num)))
     (if (> num xkcd-latest)
 	(with-current-buffer (find-file xkcd-cache-latest)
@@ -113,106 +114,104 @@ and write xkcd-latest to a file"
 	  (insert (number-to-string num))
 	  (save-buffer)
 	  (kill-buffer (current-buffer))))
-    
-    (unless (file-exists-p (name))
+    (unless (file-exists-p name)
       (with-current-buffer (find-file name)
 	(insert json-string)
 	(save-buffer)
 	(kill-buffer (current-buffer))))))
 
 (defun xkcd-insert-image (file num)
-  "Insert image FILENAME in buffer with the title-text,
-and animate if FILENAME is a gif"
-  (let ((image (create-image (format "%s%s.%s" xkcd-cache-dir
-				     (number-to-string num)
+  "Insert image described by FILE and NUM in buffer with the title-text.
+If the image is a gif, animate it."
+  (let ((image (create-image (format "%s%d.%s" xkcd-cache-dir
+				     num
 				     (substring file (- (length file) 3)))
 			     (xkcd-get-image-type file)))
 	(start (point)))
     (insert-image image)
-    (if (image-multi-frame-p image)
+    (if (or
+         (and (fboundp 'image-multi-frame-p)
+              (image-multi-frame-p image))
+         (and (fboundp 'image-animated-p)
+              (image-animated-p image)))
 	(image-animate image 0 t))
     (add-text-properties start (point) '(help-echo xkcd-alt))))
 
 ;;;###autoload
 (defun xkcd-get (num)
-  "Get the xkcd number NUM"
+  "Get the xkcd number NUM."
   (interactive "nEnter comic number: ")
   (xkcd-update-latest)
   (get-buffer-create "*xkcd*")
   (switch-to-buffer "*xkcd*")
-  (if buffer-read-only
-      (toggle-read-only))
-  (erase-buffer)
-  (if (and (boundp 'xkcd-mode) (not xkcd-mode))
-      (xkcd-mode))
-  (setq xkcd-cur num)
-  (let ((out (if (eq num 0)
-		 (xkcd-get-json "http://xkcd.com/info.0.json" 0)
-	       (xkcd-get-json (concat "http://xkcd.com/" (number-to-string num)
-				      "/info.0.json") num)))
-	(img nil)
-	(num nil)
-	(title nil)
-	(file nil))
-    (setq num (cdr (assoc 'num (json-read-from-string out))))
-    (setq img (cdr (assoc 'img (json-read-from-string out))))
-    
-    ;; FIXME: This looks pretty ugly.
-    (message "Getting comic...")
-    (setq file (xkcd-download img num))
-    (setq title (format "%d: %s" (cdr (assoc 'num (json-read-from-string out)))
-			(cdr (assoc 'safe_title (json-read-from-string out)))))
-    (insert (concat title "\n"))
-    (xkcd-insert-image file num)
-    (if (eq xkcd-cur 0)
-	(setq xkcd-cur (cdr (assoc 'num (json-read-from-string out)))))
-    (xkcd-cache-json num out)
-    (setq xkcd-alt (cdr (assoc 'alt (json-read-from-string out))))
-    (read-only-mode)
-    (message title)))
+  (xkcd-mode)
+  (let (buffer-read-only)
+    (erase-buffer)
+    (setq xkcd-cur num)
+    (let* ((url (if (eq num 0)
+                    "http://xkcd.com/info.0.json"
+                  (format "http://xkcd.com/%d/info.0.json" num)))
+           (out (xkcd-get-json url num))
+           (json-assoc (json-read-from-string out))
+           (img (cdr (assoc 'img json-assoc)))
+           (num (cdr (assoc 'num json-assoc)))
+           (safe-title (cdr (assoc 'safe_title json-assoc)))
+           title file)
+      (message "Getting comic...")
+      (setq file (xkcd-download img num))
+      (setq title (format "%d: %s" num safe-title))
+      (insert title "\n")
+      (xkcd-insert-image file num)
+      (if (eq xkcd-cur 0)
+          (setq xkcd-cur num))
+      (xkcd-cache-json num out)
+      (setq xkcd-alt (cdr (assoc 'alt json-assoc)))
+      (message title))))
 
 (defun xkcd-next ()
-  "Get next xkcd"
+  "Get next xkcd."
   (interactive)
   (xkcd-get (+ xkcd-cur 1)))
 
 (defun xkcd-prev ()
-  "Get previous xkcd"
+  "Get previous xkcd."
   (interactive)
   (xkcd-get (- xkcd-cur 1)))
 
 (defun xkcd-rand ()
-  "Show random xkcd"
+  "Show random xkcd."
   (interactive)
-  (xkcd-get (random (cdr (assoc 'num (json-read-from-string
-				      (xkcd-get-json "http://xkcd.com/info.0.json" 0)))))))
-  
+  (let* ((url "http://xkcd.com/info.0.json")
+         (last (cdr (assoc 'num (json-read-from-string
+                                 (xkcd-get-json url 0))))))
+    (xkcd-get (random last))))
+
 (defun xkcd-get-latest ()
-  "Get the latest xkcd"
+  "Get the latest xkcd."
   (interactive)
   (xkcd-get 0))
 
 (defalias 'xkcd 'xkcd-get-latest)
 
 (defun xkcd-get-latest-cached ()
-  "Get the latest cached xkcd"
+  "Get the latest cached xkcd."
   (interactive)
   (xkcd-update-latest)
   (xkcd-get xkcd-latest))
 
 (defun xkcd-alt-text ()
-  "View the alt text in the buffer"
+  "View the alt text in the buffer."
   (interactive)
   (message xkcd-alt))
 
 (defun xkcd-kill-buffer ()
-  "Kill the xkcd buffer"
+  "Kill the xkcd buffer."
   (interactive)
   (kill-buffer "*xkcd*"))
 
 (defun xkcd-update-latest ()
-  "Update xkcd-latest to point to the last cached comic"
-  (let ((file (concat xkcd-cache-latest)))
+  "Update `xkcd-latest' to point to the last cached comic."
+  (let ((file xkcd-cache-latest))
     (with-current-buffer (find-file file)
       (setq xkcd-latest (string-to-number
 			 (buffer-substring-no-properties (point-min) (point-max))))
