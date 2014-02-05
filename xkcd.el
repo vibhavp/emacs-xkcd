@@ -75,12 +75,12 @@ The return value is a string."
 	 (cached (and (file-exists-p file) (not (eq num 0)))))
     (with-current-buffer (if cached
 			     (find-file file)
-			   (url-retrieve-synchronously url)))
-    (goto-char (point-min))
-    (unless cached (re-search-forward "^$"))
-    (prog1
-	(buffer-substring-no-properties (point) (point-min))
-      (kill-buffer (current-buffer)))))
+			   (url-retrieve-synchronously url))
+      (goto-char (point-min))
+      (unless cached (re-search-forward "^$"))
+      (prog1
+	  (buffer-substring-no-properties (point) (point-min))
+	(kill-buffer (current-buffer))))))
 
 (defun xkcd-get-image-type (url)
   (let ((substr (substring url (- (length url) 3))))
@@ -95,9 +95,8 @@ The return value is a string."
   "Download the image linked by URL to NUM. If NUM arleady exists, do nothing"
   ;;check if the cache directory exists
   (unless (file-exists-p xkcd-cache-dir) (make-directory xkcd-cache-dir))
-  (let ((name (concat xkcd-cache-dir (number-to-string num) "." (substring
-							     url
-							     (- (length url) 3)))))
+  (let ((name (format "%s%s.%s" xkcd-cache-dir (number-to-string num)
+		      (substring url (- (length url) 3)))))
     (if (file-exists-p name)
 	name
       (url-copy-file url name))
@@ -124,9 +123,8 @@ and write xkcd-latest to a file"
 (defun xkcd-insert-image (file num)
   "Insert image FILENAME in buffer with the title-text,
 and animate if FILENAME is a gif"
-  (let ((image (create-image (concat xkcd-cache-dir
+  (let ((image (create-image (format "%s%s.%s" xkcd-cache-dir
 				     (number-to-string num)
-				     "."
 				     (substring file (- (length file) 3)))
 			     (xkcd-get-image-type file)))
 	(start (point)))
