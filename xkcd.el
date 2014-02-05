@@ -129,7 +129,11 @@ and animate if FILENAME is a gif"
 			     (xkcd-get-image-type file)))
 	(start (point)))
     (insert-image image)
-    (if (image-multi-frame-p image)
+    (if (or
+         (and (fboundp 'image-multi-frame-p)
+              (image-multi-frame-p image))
+         (and (fboundp 'image-animated-p)
+              (image-animated-p image)))
 	(image-animate image 0 t))
     (add-text-properties start (point) '(help-echo xkcd-alt))))
 
