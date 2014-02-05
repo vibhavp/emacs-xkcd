@@ -83,6 +83,7 @@ The return value is a string."
 	(kill-buffer (current-buffer))))))
 
 (defun xkcd-get-image-type (url)
+  "Return a symbol (`png', `jpg' or `gif') corresponding to the last characters of URL."
   (let ((substr (substring url (- (length url) 3))))
    (cond
     ((string= substr "png")
@@ -92,7 +93,7 @@ The return value is a string."
     (t 'gif))))
 
 (defun xkcd-download (url num)
-  "Download the image linked by URL to NUM. If NUM arleady exists, do nothing"
+  "Download the image linked by URL to NUM.  If NUM arleady exists, do nothing."
   ;;check if the cache directory exists
   (unless (file-exists-p xkcd-cache-dir)
     (make-directory xkcd-cache-dir))
@@ -104,8 +105,7 @@ The return value is a string."
     name))
 
 (defun xkcd-cache-json (num json-string)
-  "Save xkcd NUM's JSON-STRING to cache directory,
-and write xkcd-latest to a file"
+  "Save xkcd NUM's JSON-STRING to cache directory and write xkcd-latest to a file."
   (let ((name (format "%s%d.json" xkcd-cache-dir num)))
     (if (> num xkcd-latest)
 	(with-current-buffer (find-file xkcd-cache-latest)
@@ -121,8 +121,8 @@ and write xkcd-latest to a file"
 	(kill-buffer (current-buffer))))))
 
 (defun xkcd-insert-image (file num)
-  "Insert image FILENAME in buffer with the title-text,
-and animate if FILENAME is a gif"
+  "Insert image described by FILE and NUM in buffer with the title-text.
+If the image is a gif, animate it."
   (let ((image (create-image (format "%s%d.%s" xkcd-cache-dir
 				     num
 				     (substring file (- (length file) 3)))
