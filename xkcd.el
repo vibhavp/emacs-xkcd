@@ -79,7 +79,7 @@ The return value is a string."
       (goto-char (point-min))
       (unless cached (re-search-forward "^$"))
       (prog1
-	  (buffer-substring-no-properties (+ (point) 1) (point-max))
+	  (buffer-substring-no-properties (point) (point-max))
 	(kill-buffer (current-buffer))))))
 
 (defun xkcd-get-image-type (url)
