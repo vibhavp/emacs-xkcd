@@ -197,7 +197,7 @@ If the image is a gif, animate it."
 	 (number (substring string 0 (string-match "/" string))))
     (xkcd-get (string-to-number number))))
 
-(setq browse-url-browser-function (if xkcd-handle-link
+(setq browse-url-browser-function (if xkcd-handle-links
 				      (lambda (url etc)
 					(if (string-match "xkcd.com/[0-9]+"
 					     "http://xkcd.com/123/")
