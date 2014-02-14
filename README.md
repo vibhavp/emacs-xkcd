@@ -19,13 +19,22 @@ Clone this repository to a desired location, and add the following snippet to yo
 #Screenshot:
 ![alt text][screen]
 [screen]: http://i.imgur.com/x08oyQm.png "Screenshot of emacs-xkcd"
-#Loading up comics:
+
+#Loading comics:
 `xkcd-get` loads up a user-specified comic.
 
-Files are cached by default to ~/.emacs.d/xkcd/. This can be changed by changing `xkcd-cache-dir` in the group "xkcd". (customize-group xkcd)
+Files are cached (for later offline viewing) by default to ~/.emacs.d/xkcd/. This can be changed by changing `xkcd-cache-dir` in the group "xkcd". (customize-group xkcd)
 
 `xkcd` loads up the latest xkcd.
-# Current keybindings:
+
+#Customization
+emacs-xkcd can be customized with `M-x customize-group xkcd`. The customization options are:
+|     Option          |                   Use                                     | Default value            |
+|:-------------------:|:---------------------------------------------------------:|:------------------------:|
+| `xkcd-cache-dir`    | Directory where images and json files are cached          | `~/.emacs.d/xkcd/`       |
+| `xkcd-cache-latest` | File where the number of the latest cached xkcd is stored | `~/.emacs.d/xkcd/latest` |
+| `xkcd-handle-links` | If t, handle xkcd links by opening them with xkcd-get     | `t`                      |
+#Keybindings:
 | Keybinding | Use                            |  Function      |
 |:----------:|:------------------------------:|:--------------:|
 | `r`        | Load a random xkcd             | (xkcd-rand)    |
