@@ -29,11 +29,14 @@ Files are cached (for later offline viewing) by default to ~/.emacs.d/xkcd/. Thi
 
 #Customization
 emacs-xkcd can be customized with `M-x customize-group xkcd`. The customization options are:
+
 |     Option          |                   Use                                     | Default value            |
 |:-------------------:|:---------------------------------------------------------:|:------------------------:|
 | `xkcd-cache-dir`    | Directory where images and json files are cached          | `~/.emacs.d/xkcd/`       |
 | `xkcd-cache-latest` | File where the number of the latest cached xkcd is stored | `~/.emacs.d/xkcd/latest` |
 | `xkcd-handle-links` | If t, handle xkcd links by opening them with xkcd-get     | `t`                      |
+
+
 #Keybindings:
 | Keybinding | Use                            |  Function      |
 |:----------:|:------------------------------:|:--------------:|
