@@ -186,6 +186,19 @@ If the image is a gif, animate it."
                                  (xkcd-get-json url 0))))))
     (xkcd-get (random last))))
 
+(defun get-xkcd-from-url (url)
+  "Load xkcd pointed to by URL"
+  (let* ((string (substring url (string-match "[0-9]+" url)))
+	 (number (substring string 0 (string-match "/" string))))
+    (xkcd-get (string-to-number number))))
+
+(setq browse-url-browser-function (lambda (url etc) (if 
+						    (string-match
+						     "xkcd.com/[0-9]+"
+						     "http://xkcd.com/123/")
+						    (get-xkcd-from-url url)
+						    'browse-url-default-browser)))
+
 (defun xkcd-get-latest ()
   "Get the latest xkcd."
   (interactive)
