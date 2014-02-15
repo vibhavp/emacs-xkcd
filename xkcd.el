@@ -35,6 +35,7 @@
 ;;; Code:
 (require 'json)
 (require 'url)
+(require 'image)
 
 ;;;###autoload
 (define-derived-mode xkcd-mode special-mode "xkcd"
