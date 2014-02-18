@@ -67,6 +67,7 @@ Should preferably be located in `xkcd-cache-dir'."
   :group 'xkcd
   :type 'file)
 
+;;;###autoload
 (defcustom xkcd-handle-links t
   "If t, Handle xkcd links by opening them with xkcd-get"
   :group 'xkcd
