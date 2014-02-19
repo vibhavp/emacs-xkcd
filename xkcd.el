@@ -67,12 +67,6 @@ Should preferably be located in `xkcd-cache-dir'."
   :group 'xkcd
   :type 'file)
 
-;;;###autoload
-(defcustom xkcd-handle-links t
-  "If t, Handle xkcd links by opening them with xkcd-get"
-  :group 'xkcd
-  :type 'boolean)
-
 (defun xkcd-get-json (url &optional num)
   "Fetch the Json coming from URL.
 If the file NUM.json exists, use it instead.
@@ -200,6 +194,7 @@ If the image is a gif, animate it."
     (xkcd-get (string-to-number number))))
 
 ;;;###autoload
+(defun xkcd-handle-urls ())
 (setq browse-url-browser-function (if xkcd-handle-links
 				      (lambda (url etc)
 					(if (string-match "xkcd.com/[0-9]+"
