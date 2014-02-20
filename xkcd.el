@@ -47,6 +47,8 @@
 (define-key xkcd-mode-map (kbd "r") 'xkcd-rand)
 (define-key xkcd-mode-map (kbd "t") 'xkcd-alt-text)
 (define-key xkcd-mode-map (kbd "q") 'xkcd-kill-buffer)
+(define-key xkcd-mode-map (kbd "o") 'xkcd-open-browser)
+(define-key xkcd-mode-map (kbd "e") 'xkcd-open-explanation-browser)
 
 (defvar xkcd-alt nil)
 (defvar xkcd-cur nil)
@@ -236,6 +238,17 @@ If the image is a gif, animate it."
       (setq xkcd-latest (string-to-number
 			 (buffer-substring-no-properties (point-min) (point-max))))
       (kill-buffer (current-buffer)))))
+(defun xkcd-open-browser ()
+  "Open current xkcd in default browser"
+  (interactive)
+  (browse-url-default-browser (concat "http://xkcd.com/"
+                                      (number-to-string xkcd-cur))))
+
+(defun xkcd-open-explanation-browser ()
+  "Open explanation of current xkcd in default browser"
+  (interactive)
+  (browse-url-default-browser (concat "http://www.explainxkcd.com/wiki/index.php/"
+                                      (number-to-string xkcd-cur))))
 
 (provide 'xkcd)
 ;;; xkcd.el ends here
