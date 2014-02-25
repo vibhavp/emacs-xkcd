@@ -194,17 +194,6 @@ If the image is a gif, animate it."
     (xkcd-get (string-to-number number))))
 
 ;;;###autoload
-(defun xkcd-handle-urls ())
-(setq browse-url-browser-function (if xkcd-handle-links
-				      (lambda (url etc)
-					(if (string-match "xkcd.com/[0-9]+"
-					     "http://xkcd.com/123/")
-					    (get-xkcd-from-url url)
-					  
-					  'browse-url-default-browser))
-				    'browse-url-default-browser))
-
-;;;###autoload
 (defun xkcd-get-latest ()
   "Get the latest xkcd."
   (interactive)
