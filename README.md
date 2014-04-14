@@ -10,6 +10,9 @@ Implementation of an xkcd (http://xkcd.com/) reader for Emacs.
 ## Via package.el (Melpa)
 emacs-xkcd is now available on [Melpa](http://melpa.milkbox.net). If you have added Melpa as a repository, the package can be installed by a simple `M-x package-install xkcd`.
 
+## Via el-get
+You can install emacs-xkcd using [el-get](https://github.com/dimitri/el-get), as well. To do so, just run `M-x el-get-install xkcd`.
+
 ## Via Github
 Clone this repository to a desired location, and add the following snippet to your .emacs:
 ```lisp
