@@ -93,7 +93,7 @@ The return value is a string."
     ((string= substr "png")
      'png)
     ((string= substr "jpg")
-     'jpg)
+     'jpeg)
     (t 'gif))))
 
 (defun xkcd-download (url num)
