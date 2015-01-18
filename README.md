@@ -34,7 +34,6 @@ emacs-xkcd can be customized with `M-x customize-group xkcd`. The customization 
 |:-------------------:|:---------------------------------------------------------:|:------------------------:|
 | `xkcd-cache-dir`    | Directory where images and json files are cached          | `~/.emacs.d/xkcd/`       |
 | `xkcd-cache-latest` | File where the number of the latest cached xkcd is stored | `~/.emacs.d/xkcd/latest` |
-| `xkcd-handle-links` | If t, handle xkcd links by opening them with xkcd-get     | `t`                      |
 
 
 #Keybindings:
@@ -47,3 +46,4 @@ emacs-xkcd can be customized with `M-x customize-group xkcd`. The customization 
 
 #TODO
 Add support for custom faces.
+Handle links to xkcd in Emacs with xkcd-get.
