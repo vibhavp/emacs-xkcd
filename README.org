@@ -12,17 +12,17 @@ Implementation of an [[https://xkcd.com][xkcd]] reader for GNU Emacs.
    ~M-x package-install xkcd~.
 ** Via Git
    Clone this repo to a desired location, add the directory to your load path:
-   #+BEGIN_SRC lisp
+   #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path (expand-file-name "/path/to/emacs-xkcd"))
 (require 'xkcd)
    #+END_SRC
-
+   
 * Screenshot:
   [[./images/screenshot.png]]
 
 * Viewing comics:
   + ~xkcd-get~ loads a user-specific xkcd.
-  Files are cached (for later offline viewing) by default to ~~/.emacs.d/xkcd/~.
+  Files are cached (for later offline viewing) by default to =~/.emacs.d/xkcd/=.
   This can be changed by changing ~xkcd-cache-dir~ in emacs-xkcd's customize menu. 
   (~customize-group xkcd~)
   
@@ -33,8 +33,8 @@ Implementation of an [[https://xkcd.com][xkcd]] reader for GNU Emacs.
   emacs-xkcd can be customized with ~M-x customize-group xkcd~.
   | Option              | Use                                                  | Default value            |
   |---------------------+------------------------------------------------------+--------------------------|
-  | ~xkcd-cache-dir~    | Directory where images and json files are cached     | ~~/.emacs.d/xkcd/~       |
-  | ~xkcd-cache-latest~ | File where the latest cached xkcd's number is stored | ~~/.emacs.d/xkcd/latest~ |
+  | ~xkcd-cache-dir~    | Directory where images and json files are cached     | =~/.emacs.d/xkcd/=       |
+  | ~xkcd-cache-latest~ | File where the latest cached xkcd's number is stored | =~/.emacs.d/xkcd/latest= |
 
 * Keybindings:
   
