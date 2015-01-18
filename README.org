@@ -6,10 +6,13 @@
 Implementation of an [[https://xkcd.com][xkcd]] reader for GNU Emacs.
 
 * Installation
-** Via package.el:
+** Via package.el
    emacs-xkcd is available on [[http://melpa.milkbox.net][MELPA]] and [[https://marmalade-repo.org/][Marmalade]]. Just add any
    of these to your package archives, and install the package with 
    ~M-x package-install xkcd~.
+** Via el-get
+   Emacs xkcd can also be installed using [[https://github.com/dimitri/el-get][el-get]]. To do so, run
+   ~M-x el-get-install xkcd~
 ** Via Git
    Clone this repo to a desired location, add the directory to your load path:
    #+BEGIN_SRC emacs-lisp
