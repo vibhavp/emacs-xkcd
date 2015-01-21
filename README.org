@@ -4,6 +4,7 @@
 [[https://travis-ci.org/vibhavp/emacs-xkcd][https://travis-ci.org/vibhavp/emacs-xkcd.png]]
 
 [[http://melpa.org/#/xkcd][file:http://melpa.org/packages/xkcd-badge.svg]]
+
 Implementation of an [[https://xkcd.com][xkcd]] reader for GNU Emacs.
 
 * Installation
