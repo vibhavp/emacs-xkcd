@@ -164,7 +164,10 @@ If the image is a gif, animate it."
       (message "Getting comic...")
       (setq file (xkcd-download img num))
       (setq title (format "%d: %s" num safe-title))
-      (insert title "\n")
+      (insert (propertize title
+			  'face '(:weight bold :height 110)))
+      (center-line)
+      (insert "\n")
       (xkcd-insert-image file num)
       (if (eq xkcd-cur 0)
           (setq xkcd-cur num))
