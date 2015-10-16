@@ -59,7 +59,9 @@
   "A xkcd reader for Emacs"
   :group 'multimedia)
 
-(defcustom xkcd-cache-dir "~/.emacs.d/xkcd/"
+(defcustom xkcd-cache-dir (let ((dir (concat user-emacs-directory "xkcd/")))
+                            (make-directory dir :parents)
+                            dir)
   "Directory to cache images and json files to."
   :group 'xkcd
   :type 'directory)
@@ -98,9 +100,6 @@ The return value is a string."
 
 (defun xkcd-download (url num)
   "Download the image linked by URL to NUM.  If NUM arleady exists, do nothing."
-  ;;check if the cache directory exists
-  (unless (file-exists-p xkcd-cache-dir)
-    (make-directory xkcd-cache-dir))
   (let ((name (format "%s%s.%s" xkcd-cache-dir (number-to-string num)
 		      (substring url (- (length url) 3)))))
     (if (file-exists-p name)
@@ -175,15 +174,21 @@ If the image is a gif, animate it."
       (setq xkcd-alt (cdr (assoc 'alt json-assoc)))
       (message title))))
 
-(defun xkcd-next ()
+(defun xkcd-next (arg)
   "Get next xkcd."
-  (interactive)
-  (xkcd-get (+ xkcd-cur 1)))
+  (interactive "p")
+  (let ((num (+ xkcd-cur arg)))
+    (when (> num xkcd-latest)
+      (setq num xkcd-latest))
+    (xkcd-get num)))
 
-(defun xkcd-prev ()
+(defun xkcd-prev (arg)
   "Get previous xkcd."
-  (interactive)
-  (xkcd-get (- xkcd-cur 1)))
+  (interactive "p")
+  (let ((num (- xkcd-cur arg)))
+    (when (< num 1)
+      (setq num 1))
+    (xkcd-get num)))
 
 (defun xkcd-rand ()
   "Show random xkcd."
@@ -242,6 +247,14 @@ If the image is a gif, animate it."
   (interactive)
   (browse-url-default-browser (concat "http://www.explainxkcd.com/wiki/index.php/"
                                       (number-to-string xkcd-cur))))
+
+(defun xkcd-copy-link ()
+  "Save the link to the current comic to the kill-ring."
+  (interactive)
+  (let ((link (concat "http://xkcd.com/"
+                      (number-to-string xkcd-cur))))
+    (kill-new link)
+    (message link)))
 
 (provide 'xkcd)
 ;;; xkcd.el ends here
