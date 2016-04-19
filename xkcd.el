@@ -172,7 +172,7 @@ If the image is a gif, animate it."
           (setq xkcd-cur num))
       (xkcd-cache-json num out)
       (setq xkcd-alt (cdr (assoc 'alt json-assoc)))
-      (message title))))
+      (message "%s" title))))
 
 (defun xkcd-next (arg)
   "Get next xkcd."
@@ -222,7 +222,7 @@ If the image is a gif, animate it."
 (defun xkcd-alt-text ()
   "View the alt text in the buffer."
   (interactive)
-  (message xkcd-alt))
+  (message "%s" xkcd-alt))
 
 (defun xkcd-kill-buffer ()
   "Kill the xkcd buffer."
