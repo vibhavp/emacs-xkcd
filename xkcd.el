@@ -4,13 +4,13 @@
 
 ;; Url: https://github.com/vibhavp/emacs-xkcd
 ;; Author: Vibhav Pant <vibhavp@gmail.com>
-;; Version: 1.0
+;; Version: 1.1
 ;; Package-Requires: ((json "1.3"))
 ;; Keywords: xkcd webcomic
 
 ;;; Commentary:
 
-;; emacs-xkcd uses the JSON interface provided by xkcd (http://xkcd.com)
+;; emacs-xkcd uses the JSON interface provided by xkcd (https://xkcd.com)
 ;; to fetch comics.
 ;; Comics can be viewed offline as they are stored by default in
 ;; ~/.emacs.d/xkcd/
@@ -30,7 +30,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+;; along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Code:
 (require 'json)
@@ -40,7 +40,7 @@
 
 ;;;###autoload
 (define-derived-mode xkcd-mode special-mode "xkcd"
-  "Major mode for viewing xkcd (http://xkcd.com/) comics."
+  "Major mode for viewing xkcd (https://xkcd.com/) comics."
   :group 'xkcd)
 
 (define-key xkcd-mode-map (kbd "<right>") 'xkcd-next)
@@ -152,8 +152,8 @@ If the image is a gif, animate it."
     (erase-buffer)
     (setq xkcd-cur num)
     (let* ((url (if (eq num 0)
-                    "http://xkcd.com/info.0.json"
-                  (format "http://xkcd.com/%d/info.0.json" num)))
+                    "https://xkcd.com/info.0.json"
+                  (format "https://xkcd.com/%d/info.0.json" num)))
            (out (xkcd-get-json url num))
            (json-assoc (json-read-from-string out))
            (img (cdr (assoc 'img json-assoc)))
@@ -193,7 +193,7 @@ If the image is a gif, animate it."
 (defun xkcd-rand ()
   "Show random xkcd."
   (interactive)
-  (let* ((url "http://xkcd.com/info.0.json")
+  (let* ((url "https://xkcd.com/info.0.json")
          (last (cdr (assoc 'num (json-read-from-string
                                  (xkcd-get-json url 0))))))
     (xkcd-get (random last))))
@@ -239,19 +239,19 @@ If the image is a gif, animate it."
 (defun xkcd-open-browser ()
   "Open current xkcd in default browser"
   (interactive)
-  (browse-url-default-browser (concat "http://xkcd.com/"
+  (browse-url-default-browser (concat "https://xkcd.com/"
                                       (number-to-string xkcd-cur))))
 
 (defun xkcd-open-explanation-browser ()
   "Open explanation of current xkcd in default browser"
   (interactive)
-  (browse-url-default-browser (concat "http://www.explainxkcd.com/wiki/index.php/"
+  (browse-url-default-browser (concat "https://www.explainxkcd.com/wiki/index.php/"
                                       (number-to-string xkcd-cur))))
 
 (defun xkcd-copy-link ()
   "Save the link to the current comic to the kill-ring."
   (interactive)
-  (let ((link (concat "http://xkcd.com/"
+  (let ((link (concat "https://xkcd.com/"
                       (number-to-string xkcd-cur))))
     (kill-new link)
     (message link)))
