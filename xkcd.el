@@ -1,6 +1,6 @@
 ;;; xkcd.el --- View xkcd from Emacs
 
-;;; Copyright (C) 2014 Vibhav Pant <vibhavp@gmail.com>
+;;; Copyright (C) 2014-2022 Vibhav Pant <vibhavp@gmail.com>
 
 ;; Url: https://github.com/vibhavp/emacs-xkcd
 ;; Author: Vibhav Pant <vibhavp@gmail.com>
