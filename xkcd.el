@@ -89,7 +89,8 @@ The return value is a string."
 	(kill-buffer (current-buffer))))))
 
 (defun xkcd-get-image-type (url)
-  "Return a symbol (`png', `jpg' or `gif') corresponding to the last characters of URL."
+  "Return a symbol corresponding to the last characters of URL.
+This can be one of `png', `jpg' or `gif'."
   (let ((substr (substring url (- (length url) 3))))
    (cond
     ((string= substr "png")
